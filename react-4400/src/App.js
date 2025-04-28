@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter,
@@ -8,6 +7,8 @@ import {
   useParams
 } from 'react-router-dom';
 import axios from 'axios';
+
+axios.defaults.baseURL = 'http://127.0.0.1:5000/api';
 
 function Menu() {
   return (
@@ -49,12 +50,11 @@ function Menu() {
   );
 }
 
-// Health check page to verify DB connectivity
 function HealthCheck() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/api/health')
+    axios.get('/health')
       .then(res => setStatus(res.data))
       .catch(err => setStatus({ error: err.message }));
   }, []);
@@ -79,10 +79,7 @@ function ProcedurePage({ title, fields, requestConfig }) {
     try {
       const url = requestConfig.url(values);
       const method = requestConfig.method || 'post';
-      const body = requestConfig.body
-        ? requestConfig.body(values)
-        : values;
-
+      const body = requestConfig.body ? requestConfig.body(values) : values;
       if (method === 'delete') {
         await axios.delete(url, { data: body });
       } else {
@@ -99,7 +96,7 @@ function ProcedurePage({ title, fields, requestConfig }) {
       <h2>{title}</h2>
       {fields.map(f => (
         <div key={f} style={{ margin: '8px 0' }}>
-          <label style={{ width: 140, display: 'inline-block' }}>{f}:</label>
+          <label style={{ width: 160, display: 'inline-block' }}>{f}:</label>
           <input
             value={values[f]}
             onChange={e => setValues({ ...values, [f]: e.target.value })}
@@ -117,7 +114,7 @@ function ViewPage({ viewName }) {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:5000/api/views/${viewName}`)
+    axios.get(`/views/${viewName}`)
       .then(res => setData(res.data))
       .catch(err => setData({ error: err.message }));
   }, [viewName]);
@@ -165,185 +162,145 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Menu />} />
 
-        {/* Procedures */}
         <Route
           path="/procedures/add-airplane"
-          element={
-            <ProcedurePage
-              title="Add Airplane"
-              fields={[
-                'ip_airlineID','ip_tail_num','ip_seat_capacity',
-                'ip_speed','ip_locationID','ip_plane_type',
-                'ip_maintenanced','ip_model','ip_neo'
-              ]}
-              requestConfig={{
-                url: () => 'http://127.0.0.1:5000/api/airplanes',
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Add Airplane"
+            fields={[
+              'ip_airlineID','ip_tail_num','ip_seat_capacity',
+              'ip_speed','ip_locationID','ip_plane_type',
+              'ip_maintenanced','ip_model','ip_neo'
+            ]}
+            requestConfig={{ url: () => '/airplanes' }}
+          />}
         />
         <Route
           path="/procedures/add-airport"
-          element={
-            <ProcedurePage
-              title="Add Airport"
-              fields={[
-                'ip_airportID','ip_airport_name','ip_city',
-                'ip_state','ip_country','ip_locationID'
-              ]}
-              requestConfig={{
-                url: () => 'http://127.0.0.1:5000/api/airports'
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Add Airport"
+            fields={[
+              'ip_airportID','ip_airport_name','ip_city',
+              'ip_state','ip_country','ip_locationID'
+            ]}
+            requestConfig={{ url: () => '/airports' }}
+          />}
         />
         <Route
           path="/procedures/add-person"
-          element={
-            <ProcedurePage
-              title="Add Person"
-              fields={[
-                'ip_personID','ip_first_name','ip_last_name',
-                'ip_locationID','ip_taxID','ip_experience',
-                'ip_miles','ip_funds'
-              ]}
-              requestConfig={{
-                url: () => 'http://127.0.0.1:5000/api/people'
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Add Person"
+            fields={[
+              'ip_personID','ip_first_name','ip_last_name',
+              'ip_locationID','ip_taxID','ip_experience',
+              'ip_miles','ip_funds'
+            ]}
+            requestConfig={{ url: () => '/people' }}
+          />}
         />
         <Route
           path="/procedures/toggle-license"
-          element={
-            <ProcedurePage
-              title="Grant/Revoke Pilot License"
-              fields={['ip_personID','ip_license']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/pilots/${v.ip_personID}/license`,
-                body: v => ({ ip_license: v.ip_license })
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Grant/Revoke License"
+            fields={['ip_personID','ip_license']}
+            requestConfig={{
+              url: v => `/pilots/${v.ip_personID}/license`,
+              body: v => ({ ip_license: v.ip_license })
+            }}
+          />}
         />
         <Route
           path="/procedures/offer-flight"
-          element={
-            <ProcedurePage
-              title="Offer Flight"
-              fields={[
-                'ip_flightID','ip_routeID','ip_support_airline',
-                'ip_support_tail','ip_progress','ip_next_time','ip_cost'
-              ]}
-              requestConfig={{
-                url: () => 'http://127.0.0.1:5000/api/flights'
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Offer Flight"
+            fields={[
+              'ip_flightID','ip_routeID','ip_support_airline',
+              'ip_support_tail','ip_progress','ip_next_time','ip_cost'
+            ]}
+            requestConfig={{ url: () => '/flights' }}
+          />}
         />
         <Route
           path="/procedures/flight-landing"
-          element={
-            <ProcedurePage
-              title="Flight Landing"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/land`
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Flight Landing"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/land`
+            }}
+          />}
         />
         <Route
           path="/procedures/flight-takeoff"
-          element={
-            <ProcedurePage
-              title="Flight Takeoff"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/takeoff`
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Flight Takeoff"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/takeoff`
+            }}
+          />}
         />
         <Route
           path="/procedures/passengers-board"
-          element={
-            <ProcedurePage
-              title="Board Passengers"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/board`
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Board Passengers"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/board`
+            }}
+          />}
         />
         <Route
           path="/procedures/passengers-disembark"
-          element={
-            <ProcedurePage
-              title="Disembark Passengers"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/disembark`
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Disembark Passengers"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/disembark`
+            }}
+          />}
         />
         <Route
           path="/procedures/assign-pilot"
-          element={
-            <ProcedurePage
-              title="Assign Pilot"
-              fields={['ip_flightID','ip_personID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/assign-pilot`,
-                body: v => ({ ip_personID: v.ip_personID })
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Assign Pilot"
+            fields={['ip_flightID','ip_personID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/assign-pilot`,
+              body: v => ({ ip_personID: v.ip_personID })
+            }}
+          />}
         />
         <Route
           path="/procedures/recycle-crew"
-          element={
-            <ProcedurePage
-              title="Recycle Crew"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}/recycle-crew`
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Recycle Crew"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}/recycle-crew`
+            }}
+          />}
         />
         <Route
           path="/procedures/retire-flight"
-          element={
-            <ProcedurePage
-              title="Retire Flight"
-              fields={['ip_flightID']}
-              requestConfig={{
-                url: v => `http://127.0.0.1:5000/api/flights/${v.ip_flightID}`,
-                method: 'delete'
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Retire Flight"
+            fields={['ip_flightID']}
+            requestConfig={{
+              url: v => `/flights/${v.ip_flightID}`,
+              method: 'delete'
+            }}
+          />}
         />
         <Route
           path="/procedures/simulation-cycle"
-          element={
-            <ProcedurePage
-              title="Simulation Cycle"
-              fields={[]}
-              requestConfig={{
-                url: () => 'http://127.0.0.1:5000/api/simulation-cycle'
-              }}
-            />
-          }
+          element={<ProcedurePage
+            title="Simulation Cycle"
+            fields={[]}
+            requestConfig={{ url: () => '/simulation-cycle' }}
+          />}
         />
 
-        {/* Views */}
         <Route path="/views/:viewName" element={<ViewRoute />} />
-
-        {/* Health */}
         <Route path="/health" element={<HealthCheck />} />
       </Routes>
     </BrowserRouter>

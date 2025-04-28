@@ -27,7 +27,7 @@
 *We used react and flask to build the app. We used the flask-cors and pymysql lib to connect to MySQL*
 
 ## Team Contribution
-- **Ritvic Verma 1:** Worked on frontend and backend development
-- **Joshua George 2:** Worked on front-end/backend, created basic skeleton
-- **Atharva Waykar** Worked on debugging and fixing errors within the pipeline between frontend and backend
-- **Derek  Kottuppally ** Worked on debugging and fixing errors within database and frontend
+- **Ritvic Verma:** Worked on frontend and backend development
+- **Joshua George:** Worked on front-end/backend, created basic skeleton
+- **Atharva Waykar:** Worked on debugging and fixing errors within the pipeline between frontend and backend
+- **Derek  Kottuppally:** Worked on debugging and fixing errors within database and frontend
